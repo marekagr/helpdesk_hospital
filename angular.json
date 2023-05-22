@@ -105,7 +105,35 @@
           }
         }
       }
+    },
+    "mylibrary": {
+      "root": "projects/mylibrary",
+      "sourceRoot": "projects/mylibrary/src",
+      "projectType": "library",
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "options": {
+            "lintFilePatterns": [
+              "projects/mylibrary/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/projects/mylibrary"
+          ],
+          "options": {
+            "jestConfig": "projects/mylibrary/jest.config.ts",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
     }
-  },
-  "defaultProject": "angular-d3"
+  }
 }

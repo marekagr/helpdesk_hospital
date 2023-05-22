@@ -1,0 +1,17 @@
+<div class="content">
+  <div class="card">
+      <div class="card-content">
+          <div class="chart-wrapper">
+              <app-chart
+                  [colors]="['#3DA5EE', '#E8E8E8']"
+                  [data]="data"
+                  [height]="300"
+                  [label]="'88%'"
+                  [title]="'Completed'"
+                  [width]="300"
+                  (callEvent)="callEvent($event)"
+              ></app-chart>
+          </div>
+      </div>
+  </div>
+</div>
