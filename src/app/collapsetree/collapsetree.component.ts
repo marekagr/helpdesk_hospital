@@ -69,6 +69,10 @@ export class CollapsetreeComponent implements OnInit {
   y: any;
   private treemap:any;
   private root:any;
+  private rectWidth:number=120 //rect width
+  private rectHight:number=50 //rectangle height
+  private offsetYLink=15
+  private self=this
 
   ngOnInit(): void {
     this.setSvgArea();
@@ -180,10 +184,10 @@ export class CollapsetreeComponent implements OnInit {
     })
     .attr("x", 0)
     .attr("y", -10)
-    .attr("width", function(d:any) {
-      return d.parent ? 120 : 120;
+    .attr("width", (d:any)=> {
+      return d.parent ? this.rectWidth : this.rectWidth;
     })
-    .attr("height", 50);
+    .attr("height", this.rectHight);
 //------------------------ end rectangle -------------------------------------
 
 //----------------------------start link ---------------------------
@@ -197,8 +201,8 @@ var linkEnter = link
   .style("stroke", function(d:any) { return d.data.level; })
   .attr("d", (d:any)=> {
    // var o = { x: source.x0, y: source.y0 };
-    var o = { x: d.x, y: d.y };
-    return this.diagonal(o, {x:d.parent.x+10,y:d.parent.y+120});
+    var o = { x: d.x+this.offsetYLink, y: d.y };
+    return this.diagonal(o, {x:d.parent.x+this.offsetYLink,y:d.parent.y+this.rectWidth});
   //  let s=o
   //  let p=o
   //  let path = `M ${s.y} ${s.x}
@@ -235,7 +239,6 @@ var linkEnter = link
 
 
   private click(d:any) {
-    console.log('d',d)
     if (d.currentTarget.__data__.children) {
       d.currentTarget.__data__._children = d.currentTarget.__data__.children;
       d.currentTarget.__data__.children = null;
@@ -249,6 +252,3 @@ var linkEnter = link
 
 
 }
-
-
-
