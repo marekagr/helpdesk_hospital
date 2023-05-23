@@ -238,7 +238,6 @@ var linkEnter = link
 
 
   private click(d:any) {
-    console.log('d',d)
     if (d.currentTarget.__data__.children) {
       d.currentTarget.__data__._children = d.currentTarget.__data__.children;
       d.currentTarget.__data__.children = null;
