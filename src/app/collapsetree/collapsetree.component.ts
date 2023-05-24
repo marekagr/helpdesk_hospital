@@ -71,7 +71,7 @@ export class CollapsetreeComponent implements OnInit {
   private root:any;
   private rectWidth:number=120 //rect width
   private rectHight:number=50 //rectangle height
-  private offsetYLink=14
+  private offsetYLink=15
 
 
   ngOnInit(): void {
@@ -104,6 +104,9 @@ export class CollapsetreeComponent implements OnInit {
     this.root.x0 = this.height / 2;
     this.root.y0 = 0;
 
+    this.root.children.forEach((d:any)=>{
+      this.collapse(d)
+    })
     // this.root.children.forEach((d:any)=>{
     //   if (d.children) {
     //     d._children = d.children;
