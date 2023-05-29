@@ -139,7 +139,7 @@ export class CollapsetreeComponent implements OnInit {
     .enter()
     .append("g")
     .attr("class", "node")
-    .attr("transform", function(d:any) {
+    .attr("transform", (d:any)=> {
       // return "translate(" + source.y0 + "," + source.x0 + ")";
       return "translate(" + d.y + "," + d.x + ")";
     })
