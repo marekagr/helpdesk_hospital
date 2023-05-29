@@ -72,7 +72,6 @@ export class AppCollapsetreeComponent implements OnInit  {
   private rectWidth:number=120 //rect width
   private rectHight:number=50 //rectangle height
   private offsetYLink=15
-  private self=this
   private  duration = 750
 
   ngOnInit(): void {
