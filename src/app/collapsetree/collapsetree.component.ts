@@ -65,6 +65,7 @@ export class CollapsetreeComponent implements OnInit {
   width!: number;
   height = 600 - this.margin.top - this.margin.bottom;
   svg!: Selection<any, any, any, any>;
+  link!: Selection<any, any, any, any>;
   x: any;
   y: any;
   private treemap:any;
@@ -72,7 +73,7 @@ export class CollapsetreeComponent implements OnInit {
   private rectWidth:number=120 //rect width
   private rectHight:number=50 //rectangle height
   private offsetYLink=15
-
+  private  duration = 750
 
   ngOnInit(): void {
     this.setSvgArea();
@@ -144,13 +145,14 @@ export class CollapsetreeComponent implements OnInit {
     })
     .on("click", (d:any)=>{
       console.log('d',d)
-      if (d.currentTarget.__data__.children) {
-        d.currentTarget.__data__._children = d.currentTarget.__data__.children;
-        d.currentTarget.__data__.children = null;
-      } else {
-        d.currentTarget.__data__.children = d.currentTarget.__data__._children;
-        d.currentTarget.__data__._children = null;
-      }
+      this.click(d)
+      // if (d.currentTarget.__data__.children) {
+      //   d.currentTarget.__data__._children = d.currentTarget.__data__.children;
+      //   d.currentTarget.__data__.children = null;
+      // } else {
+      //   d.currentTarget.__data__.children = d.currentTarget.__data__._children;
+      //   d.currentTarget.__data__._children = null;
+      // }
       this.update(d.currentTarget.__data__);
     });
 
@@ -194,10 +196,10 @@ export class CollapsetreeComponent implements OnInit {
 //------------------------ end rectangle -------------------------------------
 
 //----------------------------start link ---------------------------
-var link = this.svg.selectAll("path.link").data(links, function(d:any) {
+this.link = this.svg.selectAll("path.link").data(links, function(d:any) {
   return d.id;
 });
-var linkEnter = link
+var linkEnter = this.link
   .enter()
   .insert("path", "g")
   .attr("class", "link")
@@ -218,6 +220,27 @@ var linkEnter = link
   //  + " " + d.parent.y + "," +  (d.x + d.parent.x) / 2
   //  + " " + d.parent.y + "," + d.parent.x;
   });
+
+  var linkUpdate = linkEnter.merge(this.link);
+  linkUpdate
+    .transition()
+    .duration(this.duration)
+    .attr("d", (d:any)=> {
+      var o = { x: d.x+this.offsetYLink, y: d.y };
+      return this.diagonal(o, {x:d.parent.x+this.offsetYLink,y:d.parent.y+this.rectWidth});
+    });
+  var linkExit = this.link
+    .exit()
+    .transition()
+    .duration(this.duration)
+    .attr("d", (d:any)=> {
+    // var o = { x: source.x, y: source.y };
+      var o = { x: source.x+this.offsetYLink, y: source.y };
+      return this.diagonal(o, o);
+    })
+    .remove();
+
+
   }
 
   private diagonal(s:any, p:any) {
