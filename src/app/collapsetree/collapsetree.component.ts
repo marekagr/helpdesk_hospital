@@ -63,7 +63,7 @@ export class CollapsetreeComponent implements OnInit {
   };
   margin = { top: 10, right: 30, bottom: 30, left: 60 };
   width!: number;
-  height = 600 - this.margin.top - this.margin.bottom;
+  height = 900 - this.margin.top - this.margin.bottom;
   svg!: Selection<any, any, any, any>;
   link!: Selection<any, any, any, any>;
   x: any;
@@ -132,16 +132,16 @@ export class CollapsetreeComponent implements OnInit {
   nodes.forEach(function(d:any) {
     d.y = d.depth * 180;
   });
-  var node = this.svg.selectAll("g.node").data(nodes, function(d:any) {
+  var node: Selection<any, any, any, any> = this.svg.selectAll("g.node").data(nodes, function(d:any) {
     return d.id || (d.id = ++i);
   });
   var nodeEnter = node
     .enter()
     .append("g")
     .attr("class", "node")
-    .attr("transform", function(d:any) {
-      // return "translate(" + source.y0 + "," + source.x0 + ")";
-      return "translate(" + d.y + "," + d.x + ")";
+    .attr("transform", (d:any)=> {
+      return "translate(" + source.y0 + "," + source.x0 + ")";
+      // return "translate(" + d.y + "," + d.x + ")";
     })
     .on("click", (d:any)=>{
       console.log('d',d)
@@ -160,31 +160,31 @@ export class CollapsetreeComponent implements OnInit {
   nodeEnter
     .attr("class", "node")
     .attr("r", 1e-6)
-    .style("fill", function(d:any) {
+    .style("fill", (d:any)=> {
       return d.parent ? "rgb(39, 43, 77)" : "#fe6e9e";
     });
   nodeEnter
     .append("rect")
-    .attr("rx", function(d:any) {
+    .attr("rx", (d:any)=> {
       if (d.parent) return d.children || d._children ? 0 : 6;
       return 10;
     })
-    .attr("ry", function(d:any) {
+    .attr("ry", (d:any)=> {
       if (d.parent) return d.children || d._children ? 0 : 6;
       return 10;
     })
-    .attr("stroke-width", function(d:any) {
+    .attr("stroke-width", (d:any)=> {
       return d.parent ? 1 : 0;
     })
-    .attr("stroke", function(d:any) {
+    .attr("stroke", (d:any)=> {
       return d.children || d._children
         ? "rgb(3, 192, 220)"
         : "rgb(38, 222, 176)";
     })
-    .attr("stroke-dasharray", function(d:any) {
+    .attr("stroke-dasharray", (d:any)=> {
       return d.children || d._children ? "0" : "2.2";
     })
-    .attr("stroke-opacity", function(d:any) {
+    .attr("stroke-opacity", (d:any)=> {
       return d.children || d._children ? "1" : "0.6";
     })
     .attr("x", 0)
@@ -195,6 +195,70 @@ export class CollapsetreeComponent implements OnInit {
     .attr("height", this.rectHight);
 //------------------------ end rectangle -------------------------------------
 
+
+//-------------------- text -------------------------------------------------------------    
+nodeEnter
+.append("text")
+.style("fill", (d:any)=> {
+  if (d.parent) {
+    return d.children || d._children ? "#ffffff" : "rgb(38, 222, 176)";
+  }
+  return "rgb(39, 43, 77)";
+})
+.attr("dy", ".35em")
+.attr("x", (d:any)=> {
+  return d.children ? (d.data.value)*(1) : d.data.value+4
+})
+.attr("text-anchor", function(d) {
+  return "middle";
+})
+.text((d:any)=> {
+  return d.data.name;
+});
+//----------------- end text --------------------------------------------
+
+
+//------------------------ start a href ------------------------
+nodeEnter
+.append("a")
+.attr("xlink:href", "http://en.wikipedia.org/wiki/")
+.on("click", (event)=>{
+  console.log("d3.event",event)
+  event.preventDefault();
+  event.stopPropagation();
+})
+.append("image")
+.attr("xlink:href", "https://github.com/favicon.ico")
+.attr("x", 18)
+.attr("y", 18)
+.attr("width", 16)
+.attr("height", 16);
+//------------------- end a href -----------------------------------
+
+
+//------------------------ node update -----------------------
+var nodeUpdate = nodeEnter.merge(node);
+
+nodeUpdate
+  .transition()
+  .duration(this.duration)
+  .attr("transform", (d:any)=> {
+    return "translate(" + d.y + "," + d.x + ")";
+  });
+var nodeExit = node
+  .exit()
+  .transition()
+  .duration(this.duration)
+  .attr("transform", (d:any)=> {
+    return "translate(" + source.y + "," + source.x + ")";
+  })
+  .remove();
+nodeExit.select("rect").style("opacity", 1e-6);
+nodeExit.select("rect").attr("stroke-opacity", 1e-6);
+nodeExit.select("text").style("fill-opacity", 1e-6);
+//------------------------ end node update --------------------
+
+
 //----------------------------start link ---------------------------
 this.link = this.svg.selectAll("path.link").data(links, function(d:any) {
   return d.id;
@@ -203,11 +267,13 @@ var linkEnter = this.link
   .enter()
   .insert("path", "g")
   .attr("class", "link")
-  .style("stroke", function(d:any) { return d.data.level; })
+  .style("stroke", (d:any)=> { return d.data.level; })
   .attr("d", (d:any)=> {
    // var o = { x: source.x0, y: source.y0 };
-    var o = { x: d.x+this.offsetYLink, y: d.y };
-    return this.diagonal(o, {x:d.parent.x+this.offsetYLink,y:d.parent.y+this.rectWidth});
+    // var o = { x: d.x+this.offsetYLink, y: d.y };
+    var o = { x: source.x0+this.offsetYLink, y: source.y0 };
+    // return this.diagonal(o, {x:d.parent.x+this.offsetYLink,y:d.parent.y+this.rectWidth});
+    return this.diagonal(o, {x:source.x0+this.offsetYLink,y:source.y0+this.rectWidth});
   //  let s=o
   //  let p=o
   //  let path = `M ${s.y} ${s.x}
