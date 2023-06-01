@@ -256,6 +256,7 @@ var nodeExit = node
 nodeExit.select("rect").style("opacity", 1e-6);
 nodeExit.select("rect").attr("stroke-opacity", 1e-6);
 nodeExit.select("text").style("fill-opacity", 1e-6);
+
 //------------------------ end node update --------------------
 
 
