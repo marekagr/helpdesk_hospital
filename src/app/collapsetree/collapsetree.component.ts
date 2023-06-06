@@ -37,31 +37,31 @@ export class CollapsetreeComponent implements OnInit {
           { name: "A3",level: "blue",  value: 6,},
           { name: "A4",level: "blue",  value: 6},
           {
-            name: "C",
-            level: "yellow",
+            name: "A5",
+            level: "yellow", 
             value: 8,
             children: [
-              { name: "C1" ,level: "blue", value: 7},
+              { name: "A5_1" ,level: "blue", value: 7},
               {
-                name: "D",
-                level: "purple",
+                name: "A5_2",
+                level: "purple", 
                 value: 6,
-                children: [{ name: "D1",value: 5,level: "black" }, { name: "D2",level: "blue",value: 5  }]
+                children: [{ name: "A5_2_1",value: 5,level: "black"  }, { name: "A5_2_2",level: "blue",value: 5  }]
               }
             ]
           }
         ]
       },
-      { name: "Z" ,level: "blue", value: 8},
+      { name: "B" ,level: "blue", value: 8},
       {
-        name: "B",
-        level: "green",
+        name: "C",
+        level: "green", 
         value: 12,
-        children: [{ name: "B1",level: "blue",value: 7  }, { name: "B2" ,level: "blue",value: 7}, { name: "B3",level: "blue",value: 7  }]
+        children: [{ name: "C1",level: "blue",value: 7  }, { name: "C2" ,level: "blue",value: 7}, { name: "C3",level: "blue",value: 7  }]
       }
     ]
   };
-  margin = { top: 10, right: 30, bottom: 30, left: 60 };
+  margin = { top: 10, right: 10, bottom: 30, left: 10 };
   width!: number;
   height = 900 - this.margin.top - this.margin.bottom;
   svg!: Selection<any, any, any, any>;
@@ -74,6 +74,9 @@ export class CollapsetreeComponent implements OnInit {
   private rectHight:number=50 //rectangle height
   private offsetYLink=15
   private  duration = 750
+
+  private licz:number=0
+
 
   ngOnInit(): void {
     this.setSvgArea();
@@ -101,7 +104,7 @@ export class CollapsetreeComponent implements OnInit {
     this.root = hierarchy(this.treeData, function(d:any) {
         return d.children;
     });
-    console.log('root',this.root)
+    // console.log('root',this.root)
     this.root.x0 = this.height / 2;
     this.root.y0 = 0;
 
@@ -127,13 +130,16 @@ export class CollapsetreeComponent implements OnInit {
 
     var nodes = treeData.descendants(),
     links = treeData.descendants().slice(1);
-  let i:number=0
+ 
 
-  nodes.forEach(function(d:any) {
+  nodes.forEach((d:any)=> {
     d.y = d.depth * 180;
   });
-  var node: Selection<any, any, any, any> = this.svg.selectAll("g.node").data(nodes, function(d:any) {
-    return d.id || (d.id = ++i);
+  let licz=0
+  var node: Selection<any, any, any, any> = this.svg.selectAll("g.node").data(nodes, (d:any)=> {
+    let wynik=d.id || (d.id = ++this.licz);
+    licz++
+    return wynik
   });
   var nodeEnter = node
     .enter()
@@ -143,26 +149,18 @@ export class CollapsetreeComponent implements OnInit {
       return "translate(" + source.y0 + "," + source.x0 + ")";
       // return "translate(" + d.y + "," + d.x + ")";
     })
-    .on("click", (d:any)=>{
-      console.log('d',d)
+    .on("click", (d:any)=>{     
       this.click(d)
-      // if (d.currentTarget.__data__.children) {
-      //   d.currentTarget.__data__._children = d.currentTarget.__data__.children;
-      //   d.currentTarget.__data__.children = null;
-      // } else {
-      //   d.currentTarget.__data__.children = d.currentTarget.__data__._children;
-      //   d.currentTarget.__data__._children = null;
-      // }
-      this.update(d.currentTarget.__data__);
+
     });
 
 //------------------ draw rectangle ---------------------------------
-  nodeEnter
-    .attr("class", "node")
-    .attr("r", 1e-6)
-    .style("fill", (d:any)=> {
-      return d.parent ? "rgb(39, 43, 77)" : "#fe6e9e";
-    });
+  // nodeEnter
+  //   .attr("class", "node")
+  //   .attr("r", 1e-6)
+  //   .style("fill", (d:any)=> {
+  //     return d.parent ? "rgb(39, 43, 77)" : "#fe6e9e";
+  //   });
   nodeEnter
     .append("rect")
     .attr("rx", (d:any)=> {
@@ -219,20 +217,20 @@ nodeEnter
 
 
 //------------------------ start a href ------------------------
-nodeEnter
-.append("a")
-.attr("xlink:href", "http://en.wikipedia.org/wiki/")
-.on("click", (event)=>{
-  console.log("d3.event",event)
-  event.preventDefault();
-  event.stopPropagation();
-})
-.append("image")
-.attr("xlink:href", "https://github.com/favicon.ico")
-.attr("x", 18)
-.attr("y", 18)
-.attr("width", 16)
-.attr("height", 16);
+// nodeEnter
+// .append("a")
+// .attr("xlink:href", "http://en.wikipedia.org/wiki/")
+// .on("click", (event)=>{
+//   console.log("d3.event",event)
+//   event.preventDefault();
+//   event.stopPropagation();
+// })
+// .append("image")
+// .attr("xlink:href", "https://github.com/favicon.ico")
+// .attr("x", 18)
+// .attr("y", 18)
+// .attr("width", 16)
+// .attr("height", 16);
 //------------------- end a href -----------------------------------
 
 
@@ -257,6 +255,7 @@ nodeExit.select("rect").style("opacity", 1e-6);
 nodeExit.select("rect").attr("stroke-opacity", 1e-6);
 nodeExit.select("text").style("fill-opacity", 1e-6);
 
+
 //------------------------ end node update --------------------
 
 
@@ -275,17 +274,7 @@ var linkEnter = this.link
     var o = { x: source.x0+this.offsetYLink, y: source.y0 };
     // return this.diagonal(o, {x:d.parent.x+this.offsetYLink,y:d.parent.y+this.rectWidth});
     return this.diagonal(o, {x:source.x0+this.offsetYLink,y:source.y0+this.rectWidth});
-  //  let s=o
-  //  let p=o
-  //  let path = `M ${s.y} ${s.x}
-  //  C ${(s.y + p.y) / 2} ${s.x},
-  //    ${(s.y + p.y) / 2} ${p.x},
-  //    ${p.y} ${p.x}`;
-  //  return path
-  //  return "M" + d.y + "," + d.x
-  //  + "C" + d.y + "," + (d.x + d.parent.x) / 2
-  //  + " " + d.parent.y + "," +  (d.x + d.parent.x) / 2
-  //  + " " + d.parent.y + "," + d.parent.x;
+
   });
 
   var linkUpdate = linkEnter.merge(this.link);
@@ -307,7 +296,11 @@ var linkEnter = this.link
     })
     .remove();
 
-
+    nodes.forEach((d:any)=> {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
+    console.log('nodes',nodes)
   }
 
   private diagonal(s:any, p:any) {
@@ -323,7 +316,7 @@ var linkEnter = this.link
     if (d.children) {
       d._children = d.children;
       d._children.forEach((n:any)=>{
-        console.log('n',n)
+        // console.log('n',n)
         this.collapse(n)
       });
       d.children = null;
@@ -332,6 +325,7 @@ var linkEnter = this.link
 
 
   private click(d:any) {
+    console.log('click',d.currentTarget.__data__)
     if (d.currentTarget.__data__.children) {
       d.currentTarget.__data__._children = d.currentTarget.__data__.children;
       d.currentTarget.__data__.children = null;
