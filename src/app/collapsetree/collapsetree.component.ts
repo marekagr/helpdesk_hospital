@@ -217,20 +217,36 @@ nodeEnter
 
 
 //------------------------ start a href ------------------------
-// nodeEnter
-// .append("a")
-// .attr("xlink:href", "http://en.wikipedia.org/wiki/")
-// .on("click", (event)=>{
-//   console.log("d3.event",event)
-//   event.preventDefault();
-//   event.stopPropagation();
-// })
-// .append("image")
-// .attr("xlink:href", "https://github.com/favicon.ico")
-// .attr("x", 18)
-// .attr("y", 18)
-// .attr("width", 16)
-// .attr("height", 16);
+nodeEnter
+.append("a")
+.attr("xlink:href", "http://en.wikipedia.org/wiki/")
+.on("click", (event:any)=>{
+  event.preventDefault();
+  event.stopPropagation();
+  console.log("d3.event",event)
+  let newNodeObj:any={ name: "A6",level: "blue",  value: 6,children: []}
+ //Creates new Node 
+ var newNode:any = hierarchy(newNodeObj);
+ newNode.depth = event.target.__data__.depth + 1; 
+ newNode.height = event.target.__data__.height - 1;
+ newNode.parent = event.target.__data__; 
+ newNode.id = ++this.licz;
+ event.target.__data__.children.push(newNode)
+ event.target.__data__.data.children.push(newNode)
+
+  this.treeData.children[0].children?.push({ name: "A6",level: "blue",  value: 6})
+  // this.root = hierarchy(this.treeData, function(d:any) {
+  //   return d.children;
+  // });
+  this.update(event.target.__data__)
+
+})
+.append("image")
+.attr("xlink:href", "https://github.com/favicon.ico")
+.attr("x", 18)
+.attr("y", 18)
+.attr("width", 16)
+.attr("height", 16);
 //------------------- end a href -----------------------------------
 
 
