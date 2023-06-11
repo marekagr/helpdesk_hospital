@@ -8,6 +8,7 @@ import { TreeComponent } from './tree/tree.component';
 import { CollapsetreeComponent } from './collapsetree/collapsetree.component';
 import { DemoComponent } from './demo/demo.component';
 import { ChartComponent } from './chart/chart.component';
+import { IssueTreeComponent } from './components/issue-tree/issue-tree.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { ChartComponent } from './chart/chart.component';
     TreeComponent,
     CollapsetreeComponent,
     DemoComponent,
-    ChartComponent
+    ChartComponent,
+    IssueTreeComponent
   ],
   imports: [
     BrowserModule,
