@@ -116,7 +116,10 @@ private nodeEnter(node: Selection<any, any, any, any>,source:any,svg: Selection<
   .on("click", (d:any)=>{
     this.click(d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
 
-  });
+  })
+  .on('contextmenu', (d:any)=>{
+    this.contextMenu(d,svg)
+  });;
 
   return nodeEnter
 }
@@ -315,6 +318,21 @@ private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rect
   this.update(d.currentTarget.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params);
 }
 
+private contextMenu(d:any,svg: Selection<any, any, any, any>){
+  console.log('contextMenu',d,d.currentTarget.__data__)
+
+  // create the div element that will hold the context menu
+  svg.selectAll('.d3-context-menu').data([1])
+  .enter()
+  .append('div')
+  .attr('class', 'd3-context-menu');
+
+  // close menu
+  svg.select('body').on('click.d3-context-menu', function() {
+     svg.select('.d3-context-menu').style('display', 'none');
+  });
+  d.preventDefault();
+}
 
 private collapse(d:any | null){
     if (d.children) {
@@ -378,4 +396,21 @@ private collapse(d:any | null){
     };
   }
 
+
+  private  menuItems = [
+    {
+      title: 'First action',
+      action: (d:any) => {
+        // TODO: add any action you want to perform
+        console.log(d);
+      }
+    },
+    {
+      title: 'Second action',
+      action: (d:any) => {
+        // TODO: add any action you want to perform
+        console.log(d);
+      }
+    }
+  ];
 }
