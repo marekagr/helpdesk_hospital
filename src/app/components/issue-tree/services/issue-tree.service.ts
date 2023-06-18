@@ -55,7 +55,7 @@ export class IssueTreeService {
 public update(source:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any) {
   var nodeEnter:any
   var node: Selection<any, any, any, any>;
-  let licz=0  
+  let licz=0
   var treeData = treemap(root);
 
 
@@ -267,9 +267,9 @@ let link:Selection<any, any, any, any> = svg.selectAll("path.link").data(links, 
     var o = { x: source.x0+offsetYLink, y: source.y0 };
     // return this.diagonal(o, {x:d.parent.x+this.offsetYLink,y:d.parent.y+this.rectWidth});
     return this.diagonal(o, {x:source.x0+offsetYLink,y:source.y0+rectWidth});
-  
+
   });
-  
+
   var linkUpdate = linkEnter.merge(link);
   linkUpdate
     .transition()
@@ -320,17 +320,54 @@ private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rect
 
 private contextMenu(d:any,svg: Selection<any, any, any, any>){
   console.log('contextMenu',d,d.currentTarget.__data__)
-
+  let data=d.currentTarget.__data__
   // create the div element that will hold the context menu
-  svg.selectAll('.d3-context-menu').data([1])
+  // svg.selectAll('.svg-popupmenu').remove()
+  // let foreignObject=svg.append('foreignObject')
+  // .attr('x',d.pageX - 20)
+  // .attr('y',d.pageY - 120)
+  // .attr('width',100)
+  // .attr('overflow','visible')
+  // .attr('class','svg-popupmenu')
+  //  var div = foreignObject.append('xhtml:div')
+  //  .attr('class','svg-popupmenuDiv')
+  //  .append('p').html('kurawa mac')
+
+
+  select('body').selectAll('.d3-context-menu').data([1])
   .enter()
   .append('div')
   .attr('class', 'd3-context-menu');
 
   // close menu
-  svg.select('body').on('click.d3-context-menu', function() {
-     svg.select('.d3-context-menu').style('display', 'none');
+  select('body').on('click.d3-context-menu', function() {
+     select('.d3-context-menu').style('display', 'none');
   });
+
+  var elm = this;
+
+  select('body').selectAll('.d3-context-menu').html('');
+  var list = select('body').selectAll('.d3-context-menu').append('ul');
+  list.selectAll('li').data(this.menuItems).enter()
+    .append('li')
+    .html(function(d) {
+      return d.title;
+    })
+    .on('click', function(d, i) {
+      d.action(elm, data);
+      select('body').select('.d3-context-menu').style('display', 'none');
+    });
+
+  // the openCallback allows an action to fire before the menu is displayed
+  // an example usage would be closing a tooltip
+  // if (openCallback) openCallback(data, index);
+
+  // display context menu
+  select('body').select('.d3-context-menu')
+    .style('left', (d.pageX - 2) + 'px')
+    .style('top', (d.pageY - 2) + 'px')
+    .style('display', 'block');
+
   d.preventDefault();
 }
 
