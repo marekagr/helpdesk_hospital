@@ -195,24 +195,25 @@ nodeEnter
 .append("a")
 .attr("xlink:href", "http://en.wikipedia.org/wiki/")
 .on("click", (event:any)=>{
-  event.preventDefault();
-  event.stopPropagation();
-  console.log("d3.event",event)
-  let newNodeObj:any={ name: "A6",level: "blue",  value: 6,children: []}
-  //Creates new Node
-  var newNode:any = hierarchy(newNodeObj);
-  newNode.depth = event.target.__data__.depth + 1;
-  newNode.height = event.target.__data__.height - 1;
-  newNode.parent = event.target.__data__;
-  newNode.id = ++params.licz;
-  event.target.__data__.children.push(newNode)
-  event.target.__data__.data.children.push(newNode)
+  // event.preventDefault();
+  // event.stopPropagation();
+  // console.log("d3.event",event)
+  // let newNodeObj:any={ name: "A6",level: "blue",  value: 6,children: []}
+  // //Creates new Node
+  // var newNode:any = hierarchy(newNodeObj);
+  // newNode.depth = event.target.__data__.depth + 1;
+  // newNode.height = event.target.__data__.height - 1;
+  // newNode.parent = event.target.__data__;
+  // newNode.id = ++params.licz;
+  // event.target.__data__.children.push(newNode)
+  // event.target.__data__.data.children.push(newNode)
 
-  //treeData.children[0].children?.push({ name: "A6",level: "blue",  value: 6})
-  // this.root = hierarchy(this.treeData, function(d:any) {
-  //   return d.children;
-  // });
-  this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+  // //treeData.children[0].children?.push({ name: "A6",level: "blue",  value: 6})
+  // // this.root = hierarchy(this.treeData, function(d:any) {
+  // //   return d.children;
+  // // });
+  // this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+    this.addNode(event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
 
   }
 )
@@ -223,6 +224,54 @@ nodeEnter
 .attr("width", 16)
 .attr("height", 16);
 //------------------- end a href -----------------------------------
+}
+
+private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+  event.preventDefault();
+  event.stopPropagation();
+  console.log("d3.event",event)
+  let newNodeObj:any={ name: "A6",level: "blue",  value: 6,children: []}
+  //Creates new Node
+  var newNode:any = hierarchy(newNodeObj);
+  newNode.depth = event.target.__data__.depth + 1;
+  newNode.height = event.target.__data__.height - 1;
+  newNode.parent = event.target.__data__;
+  newNode.id = ++params.licz;
+  if(event.target.__data__.children || event.target.__data__._children){
+    event.target.__data__.children.push(newNode)
+    event.target.__data__.data.children.push(newNode)
+  }
+  else{
+    event.target.__data__.children=[]
+    event.target.__data__.children.push(newNode)
+    event.target.__data__.data.children=[]
+    event.target.__data__.data.children.push(newNode)
+  }
+
+  //treeData.children[0].children?.push({ name: "A6",level: "blue",  value: 6})
+  // this.root = hierarchy(this.treeData, function(d:any) {
+  //   return d.children;
+  // });
+  this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+}
+
+private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+  if(event.target.__data__.children) {
+    event.target.__data__.children.push(newNode)
+    event.target.__data__.data.children.push(newNode)
+  }
+  else
+  if(event.target.__data__._children)
+  {
+    
+  }
+  else
+  {
+    event.target.__data__.children=[]
+    event.target.__data__.children.push(newNode)
+    event.target.__data__.data.children=[]
+    event.target.__data__.data.children.push(newNode)
+  }
 }
 
 private updateNode(nodeEnter:any,node: Selection<any, any, any, any>,source:any,duration:number){
@@ -322,16 +371,16 @@ private contextMenu(d:any,svg: Selection<any, any, any, any>){
   console.log('contextMenu',d,d.currentTarget.__data__)
   let data=d.currentTarget.__data__
   // create the div element that will hold the context menu
-  // svg.selectAll('.svg-popupmenu').remove()
-  // let foreignObject=svg.append('foreignObject')
-  // .attr('x',d.pageX - 20)
-  // .attr('y',d.pageY - 120)
-  // .attr('width',100)
-  // .attr('overflow','visible')
-  // .attr('class','svg-popupmenu')
-  //  var div = foreignObject.append('xhtml:div')
-  //  .attr('class','svg-popupmenuDiv')
-  //  .append('p').html('kurawa mac')
+  svg.selectAll('.svg-popupmenu').remove()
+  let foreignObject=svg.append('foreignObject')
+  .attr('x',d.pageX - 20)
+  .attr('y',d.pageY - 120)
+  .attr('width',100)
+  .attr('overflow','visible')
+  .attr('class','svg-popupmenu')
+   var div = foreignObject.append('xhtml:div')
+   .attr('class','svg-popupmenuDiv')
+   .append('p').html('kurawa mac')
 
 
   select('body').selectAll('.d3-context-menu').data([1])
@@ -350,11 +399,12 @@ private contextMenu(d:any,svg: Selection<any, any, any, any>){
   var list = select('body').selectAll('.d3-context-menu').append('ul');
   list.selectAll('li').data(this.menuItems).enter()
     .append('li')
-    .html(function(d) {
-      return d.title;
+    .html(function(i) {
+      return i.title;
     })
-    .on('click', function(d, i) {
-      d.action(elm, data);
+    .on('click', (i, item)=> {
+      console.log('d',i.currentTarget.__data__,item,d)
+      // d.action(elm, data);
       select('body').select('.d3-context-menu').style('display', 'none');
     });
 
