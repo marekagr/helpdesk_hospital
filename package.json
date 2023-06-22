@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "postinstall": "node ./decorate-angular-cli.js"
+    "postinstall": "node ./decorate-angular-cli.js",
+    "jsdoc": "jsdoc -c jsdoc.json"
   },
   "private": true,
   "dependencies": {
@@ -44,6 +45,8 @@
     "eslint-config-prettier": "8.1.0",
     "jasmine-core": "~3.10.0",
     "jest": "27.5.1",
+    "jsdoc": "^4.0.2",
+    "jsdoc-tsimport-plugin": "^1.0.5",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.1.0",

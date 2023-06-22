@@ -226,6 +226,19 @@ nodeEnter
 //------------------- end a href -----------------------------------
 }
 
+/**
+ * 
+ * @param event 
+ * @param svg 
+ * @param treemap 
+ * @param root 
+ * @param rectWidth 
+ * @param rectHight 
+ * @param offsetYLink 
+ * @param duration 
+ * @param params 
+ */
+
 private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
   event.preventDefault();
   event.stopPropagation();
@@ -237,16 +250,17 @@ private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:an
   newNode.height = event.target.__data__.height - 1;
   newNode.parent = event.target.__data__;
   newNode.id = ++params.licz;
-  if(event.target.__data__.children || event.target.__data__._children){
-    event.target.__data__.children.push(newNode)
-    event.target.__data__.data.children.push(newNode)
-  }
-  else{
-    event.target.__data__.children=[]
-    event.target.__data__.children.push(newNode)
-    event.target.__data__.data.children=[]
-    event.target.__data__.data.children.push(newNode)
-  }
+  this.addChildrenToNode(newNode,event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+  // if(event.target.__data__.children || event.target.__data__._children){
+  //   event.target.__data__.children.push(newNode)
+  //   event.target.__data__.data.children.push(newNode)
+  // }
+  // else{
+  //   event.target.__data__.children=[]
+  //   event.target.__data__.children.push(newNode)
+  //   event.target.__data__.data.children=[]
+  //   event.target.__data__.data.children.push(newNode)
+  // }
 
   //treeData.children[0].children?.push({ name: "A6",level: "blue",  value: 6})
   // this.root = hierarchy(this.treeData, function(d:any) {
@@ -263,7 +277,8 @@ private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, an
   else
   if(event.target.__data__._children)
   {
-    
+    event.target.__data__._children.push(newNode)
+    event.target.__data__.data.children.push(newNode)
   }
   else
   {
