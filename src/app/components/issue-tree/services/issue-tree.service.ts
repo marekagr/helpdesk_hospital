@@ -118,7 +118,7 @@ private nodeEnter(node: Selection<any, any, any, any>,source:any,svg: Selection<
 
   })
   .on('contextmenu', (d:any)=>{
-    this.contextMenu(d,svg)
+    this.contextMenu(d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
   });;
 
   return nodeEnter
@@ -269,6 +269,20 @@ private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:an
   this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
 }
 
+
+/**
+ * add children to node
+ * @param newNode
+ * @param event 
+ * @param svg 
+ * @param treemap 
+ * @param root 
+ * @param rectWidth 
+ * @param rectHight 
+ * @param offsetYLink 
+ * @param duration 
+ * @param params 
+ */
 private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
   if(event.target.__data__.children) {
     event.target.__data__.children.push(newNode)
@@ -279,6 +293,7 @@ private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, an
   {
     event.target.__data__._children.push(newNode)
     event.target.__data__.data.children.push(newNode)
+    this.click(event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
   }
   else
   {
@@ -314,7 +329,15 @@ private updateNode(nodeEnter:any,node: Selection<any, any, any, any>,source:any,
 
 //------------------------ end node update --------------------
 }
-
+/**
+ * draw  links of node
+ * @param svg 
+ * @param links 
+ * @param source 
+ * @param rectWidth 
+ * @param offsetYLink 
+ * @param duration 
+ */
 private drawLinks(svg: Selection<any, any, any, any>,links:any,source:any,rectWidth:number,offsetYLink:number,duration:number){
   //----------------------------start link ---------------------------
 let link:Selection<any, any, any, any> = svg.selectAll("path.link").data(links, function(d:any) {
@@ -382,7 +405,7 @@ private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rect
   this.update(d.currentTarget.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params);
 }
 
-private contextMenu(d:any,svg: Selection<any, any, any, any>){
+private contextMenu(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
   console.log('contextMenu',d,d.currentTarget.__data__)
   let data=d.currentTarget.__data__
   // create the div element that will hold the context menu
@@ -395,7 +418,7 @@ private contextMenu(d:any,svg: Selection<any, any, any, any>){
   .attr('class','svg-popupmenu')
    var div = foreignObject.append('xhtml:div')
    .attr('class','svg-popupmenuDiv')
-   .append('p').html('kurawa mac')
+   .append('p').html('kuwa mac')
 
 
   select('body').selectAll('.d3-context-menu').data([1])
@@ -418,8 +441,9 @@ private contextMenu(d:any,svg: Selection<any, any, any, any>){
       return i.title;
     })
     .on('click', (i, item)=> {
-      console.log('d',i.currentTarget.__data__,item,d)
-      // d.action(elm, data);
+      console.log('d',i.currentTarget.__data__,item,data)
+      let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=[d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params] as const
+      item.action(elm, parametry);
       select('body').select('.d3-context-menu').style('display', 'none');
     });
 
@@ -501,10 +525,11 @@ private collapse(d:any | null){
 
   private  menuItems = [
     {
-      title: 'First action',
-      action: (d:any) => {
+      title: 'Dodaj węzeł',
+      action: (d:any,data:[]) => {
         // TODO: add any action you want to perform
-        console.log(d);
+        console.log(d,data);
+        this.addNode(...data)
       }
     },
     {
