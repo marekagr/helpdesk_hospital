@@ -227,16 +227,16 @@ nodeEnter
 }
 
 /**
- * 
- * @param event 
- * @param svg 
- * @param treemap 
- * @param root 
- * @param rectWidth 
- * @param rectHight 
- * @param offsetYLink 
- * @param duration 
- * @param params 
+ *
+ * @param event
+ * @param svg
+ * @param treemap
+ * @param root
+ * @param rectWidth
+ * @param rectHight
+ * @param offsetYLink
+ * @param duration
+ * @param params
  */
 
 private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
@@ -273,15 +273,15 @@ private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:an
 /**
  * add children to node
  * @param newNode
- * @param event 
- * @param svg 
- * @param treemap 
- * @param root 
- * @param rectWidth 
- * @param rectHight 
- * @param offsetYLink 
- * @param duration 
- * @param params 
+ * @param event
+ * @param svg
+ * @param treemap
+ * @param root
+ * @param rectWidth
+ * @param rectHight
+ * @param offsetYLink
+ * @param duration
+ * @param params
  */
 private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
   if(event.target.__data__.children) {
@@ -293,7 +293,7 @@ private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, an
   {
     event.target.__data__._children.push(newNode)
     event.target.__data__.data.children.push(newNode)
-    this.click(event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+    this.click(event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params,'target')
   }
   else
   {
@@ -331,12 +331,12 @@ private updateNode(nodeEnter:any,node: Selection<any, any, any, any>,source:any,
 }
 /**
  * draw  links of node
- * @param svg 
- * @param links 
- * @param source 
- * @param rectWidth 
- * @param offsetYLink 
- * @param duration 
+ * @param svg
+ * @param links
+ * @param source
+ * @param rectWidth
+ * @param offsetYLink
+ * @param duration
  */
 private drawLinks(svg: Selection<any, any, any, any>,links:any,source:any,rectWidth:number,offsetYLink:number,duration:number){
   //----------------------------start link ---------------------------
@@ -393,17 +393,33 @@ private diagonal(s:any, p:any) {
   return path;
 }
 
-private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any) {
-  console.log('click',d.currentTarget.__data__)
-  if (d.currentTarget.__data__.children) {
-    d.currentTarget.__data__._children = d.currentTarget.__data__.children;
-    d.currentTarget.__data__.children = null;
+/**
+ *
+ * @param d
+ * @param svg
+ * @param treemap
+ * @param root
+ * @param rectWidth
+ * @param rectHight
+ * @param offsetYLink
+ * @param duration
+ * @param params
+ * @param string target default 'currentTarget'
+ */
+private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any,target:string="currentTarget") {
+  console.log('click',d[target].__data__)
+  if (d[target].__data__.children) {
+    d[target].__data__._children = d[target].__data__.children;
+    d[target].__data__.children = null;
   } else {
-    d.currentTarget.__data__.children = d.currentTarget.__data__._children;
-    d.currentTarget.__data__._children = null;
+    d[target].__data__.children = d[target].__data__._children;
+    d[target].__data__._children = null;
   }
-  this.update(d.currentTarget.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params);
+  this.update(d[target].__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params);
+  // this.update(d.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params);
 }
+
+
 
 private contextMenu(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
   console.log('contextMenu',d,d.currentTarget.__data__)
@@ -442,8 +458,9 @@ private contextMenu(d:any,svg: Selection<any, any, any, any>,treemap:any,root:an
     })
     .on('click', (i, item)=> {
       console.log('d',i.currentTarget.__data__,item,data)
-      let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=[d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params] as const
-      item.action(elm, parametry);
+      let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=[d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params]
+      // item.action(elm, ...parametry);
+      item.action(item, parametry);
       select('body').select('.d3-context-menu').style('display', 'none');
     });
 
@@ -526,10 +543,12 @@ private collapse(d:any | null){
   private  menuItems = [
     {
       title: 'Dodaj węzeł',
-      action: (d:any,data:[]) => {
+      action: (d:any,data:any) => {
         // TODO: add any action you want to perform
+        let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=data
+        // parametry[0]['currentTarget']=parametry[0]['target']
         console.log(d,data);
-        this.addNode(...data)
+        this.addNode(...parametry)
       }
     },
     {
