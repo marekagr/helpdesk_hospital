@@ -304,6 +304,43 @@ private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, an
   }
 }
 
+
+private removeNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+  event.preventDefault();
+  event.stopPropagation();
+  console.log("d3.event",event)
+  if (event.target.__data__.parent) {
+			  
+    // find child and remove it
+    for (var ii = 0; ii < event.target.__data__.parent.children.length; ii++) {
+      if (event.target.__data__.parent.children[ii].id === event.target.__data__.id) {
+        event.target.__data__.parent.children.splice(ii, 1);
+        if(event.target.__data__.parent.children.length===0)event.target.__data__.parent.children=null
+        break;
+      }
+    }
+  }
+
+
+  // this.addChildrenToNode(newNode,event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+  // if(event.target.__data__.children || event.target.__data__._children){
+  //   event.target.__data__.children.push(newNode)
+  //   event.target.__data__.data.children.push(newNode)
+  // }
+  // else{
+  //   event.target.__data__.children=[]
+  //   event.target.__data__.children.push(newNode)
+  //   event.target.__data__.data.children=[]
+  //   event.target.__data__.data.children.push(newNode)
+  // }
+
+  //treeData.children[0].children?.push({ name: "A6",level: "blue",  value: 6})
+  // this.root = hierarchy(this.treeData, function(d:any) {
+  //   return d.children;
+  // });
+  this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+}
+
 private updateNode(nodeEnter:any,node: Selection<any, any, any, any>,source:any,duration:number){
   //------------------------ node update -----------------------
   var nodeUpdate = nodeEnter.merge(node);
@@ -547,15 +584,17 @@ private collapse(d:any | null){
         // TODO: add any action you want to perform
         let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=data
         // parametry[0]['currentTarget']=parametry[0]['target']
-        console.log(d,data);
+        console.log('add node',d,data);
         this.addNode(...parametry)
       }
     },
     {
-      title: 'Second action',
-      action: (d:any) => {
+      title: 'Usuń węzeł',
+      action: (d:any,data:any) => {
         // TODO: add any action you want to perform
-        console.log(d);
+        let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=data
+        this.removeNode(...parametry)
+        console.log('remove node',d,data);
       }
     }
   ];
