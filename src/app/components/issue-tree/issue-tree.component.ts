@@ -39,10 +39,13 @@ export class IssueTreeComponent implements OnInit {
     this.treemap=tree().size([this.height,this.width]);
     this.root=this.issueTreeService.setSVGRoot(this.treemap,this.treeData,this.width,this.height)
 
-  this.issueTreeService.update(this.root,this.svg,this.treemap,this.root,this.rectWidth,this.rectHight,this.offsetYLink,this.duration,this.params)
+    this.issueTreeService.update(this.root,this.svg,this.treemap,this.root,this.rectWidth,this.rectHight,this.offsetYLink,this.duration,this.params)
       // this.update(this.root,this.params)
   }
 
+  public onSave(){
+    console.log('root',this.root)
+  }
 
 
 
