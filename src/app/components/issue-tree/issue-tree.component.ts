@@ -1,6 +1,7 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import {  Selection, select, scaleTime, scaleLinear, max, extent, treemap, tree, hierarchy, TreemapLayout} from "d3";
 import {IssueTreeService} from './services/issue-tree.service'
+import { AnyCatcher } from "rxjs/internal/AnyCatcher";
 
 @Component({
   selector: 'issue-tree',
@@ -45,6 +46,33 @@ export class IssueTreeComponent implements OnInit {
 
   public onSave(){
     console.log('root',this.root)
+    const getCircularReplacer = (deletePorperties:any) => { //func that allows a circular json to be stringified
+      const seen = new WeakSet();
+      return (key:any, value:any) => {
+        if (typeof value === "object" && value !== null) {
+          if(deletePorperties){
+            delete value.id; //delete all properties you don't want in your json (not very convenient but a good temporary solution)
+            delete value.x0;
+            delete value.y0;
+            delete value.y;
+            delete value.x;
+            delete value.depth;
+            delete value.size;
+          }
+          if (seen.has(value)) {
+            return;
+          }
+          seen.add(value);
+        }
+        return value;
+      };
+    };
+
+    var myRoot = JSON.stringify(this.root.data, getCircularReplacer(false)); //Stringify a first time to clone the root object (it's allow you to delete properties you don't want to save)
+    var myvar= JSON.parse(myRoot);
+    myvar= JSON.stringify(myvar, getCircularReplacer(true)); //Stringify a second time to delete the propeties you don't need
+
+    console.log("%j",JSON.parse(myvar)); //You have your json in myvar
   }
 
 

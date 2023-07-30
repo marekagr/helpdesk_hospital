@@ -9,6 +9,9 @@ import { CollapsetreeComponent } from './collapsetree/collapsetree.component';
 import { DemoComponent } from './demo/demo.component';
 import { ChartComponent } from './chart/chart.component';
 import { IssueTreeComponent } from './components/issue-tree/issue-tree.component';
+import { MainComponent } from './layouts/components/main/main.component';
+import { HeaderComponent } from './layouts/components/header/header.component';
+import { FooterComponent } from './layouts/components/footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +21,10 @@ import { IssueTreeComponent } from './components/issue-tree/issue-tree.component
     CollapsetreeComponent,
     DemoComponent,
     ChartComponent,
-    IssueTreeComponent
+    IssueTreeComponent,
+    MainComponent,
+    HeaderComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
