@@ -300,7 +300,7 @@ private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, an
     event.target.__data__.children=[]
     event.target.__data__.children.push(newNode)
     event.target.__data__.data.children=[]
-    event.target.__data__.data.children.push(newNode)
+    event.target.__data__.data.children.push(newNode.data)
   }
 }
 
@@ -310,7 +310,7 @@ private removeNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root
   event.stopPropagation();
   console.log("d3.event",event)
   if (event.target.__data__.parent) {
-			  
+
     // find child and remove it
     for (var ii = 0; ii < event.target.__data__.parent.children.length; ii++) {
       if (event.target.__data__.parent.children[ii].id === event.target.__data__.id) {

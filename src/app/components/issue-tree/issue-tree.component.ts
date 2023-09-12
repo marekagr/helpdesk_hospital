@@ -68,7 +68,7 @@ export class IssueTreeComponent implements OnInit {
       };
     };
 
-    var myRoot = JSON.stringify(this.root.data, getCircularReplacer(false)); //Stringify a first time to clone the root object (it's allow you to delete properties you don't want to save)
+    var myRoot = JSON.stringify(this.root, getCircularReplacer(false)); //Stringify a first time to clone the root object (it's allow you to delete properties you don't want to save)
     var myvar= JSON.parse(myRoot);
     myvar= JSON.stringify(myvar, getCircularReplacer(true)); //Stringify a second time to delete the propeties you don't need
 
