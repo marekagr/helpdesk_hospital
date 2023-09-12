@@ -12,6 +12,10 @@ import { IssueTreeComponent } from './components/issue-tree/issue-tree.component
 import { MainComponent } from './layouts/components/main/main.component';
 import { HeaderComponent } from './layouts/components/header/header.component';
 import { FooterComponent } from './layouts/components/footer/footer.component';
+import { TabComponentComponent } from './components/tab-component/components/tab-component/tab-component.component';
+import { ContentContainerDirective } from './components/tab-component/components/tab-component/directives/content-container.directive';
+import { TabContentComponent } from './components/tab-content/components/tab-content/tab-content/tab-content.component';
+
 
 @NgModule({
   declarations: [
@@ -24,7 +28,11 @@ import { FooterComponent } from './layouts/components/footer/footer.component';
     IssueTreeComponent,
     MainComponent,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    TabComponentComponent,
+    ContentContainerDirective,
+    TabContentComponent,
+
   ],
   imports: [
     BrowserModule,
