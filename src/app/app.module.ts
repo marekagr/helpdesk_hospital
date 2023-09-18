@@ -28,8 +28,6 @@ import { ContentContainerDirective } from './components/tab-content/directives/c
     HeaderComponent,
     FooterComponent,
     ContentContainerDirective,
-    TabContentComponent,
-
   ],
   imports: [
     BrowserModule,
