@@ -1,5 +1,17 @@
-import { Injectable,ElementRef } from '@angular/core';
+import { Injectable,ElementRef,ApplicationRef } from '@angular/core';
+import { HttpClient,HttpHeaders } from "@angular/common/http";
+import { Router } from "@angular/router";
+import { Subject,BehaviorSubject,Observable } from "rxjs";
+import { MatDialog, MatDialogRef,MatDialogConfig,MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {margin} from '../models/margin'
+import {EditorComponent} from '../../editor/components/editor/editor.component'
+import {IssueDialogFormComponent} from '../../issue/components/issue-dialog-form/issue-dialog-form.component'
+import { GlobalVariable } from '../../../../global';
+import {IssueTree} from "../models/issueTree"
+import {UtilityService} from '../../../common/services/utility.service'
+
+const httpOptionsText={headers:new HttpHeaders({'Content-Type':  'text/plain'})};
+
 import {
   Selection,
   select,
@@ -20,8 +32,14 @@ import {
   providedIn: 'root'
 })
 export class IssueTreeService {
+  dialogEditorFormRef: MatDialogRef<EditorComponent> | undefined
+  issueDialogFormComponentRef: MatDialogRef<IssueDialogFormComponent> | undefined
+  globalUrl=GlobalVariable.BASE_API_URL;
+  private issueTree$ = new BehaviorSubject<IssueTree|null>(null);
 
-  constructor() { }
+
+
+  constructor(private utilityService:UtilityService,private http: HttpClient, private router: Router,private ref: ApplicationRef,private dialog: MatDialog) { }
 
   setSvgArea(nativeElement:HTMLElement,margin:margin,width:number,height:number): Selection<any, any, any, any> {
 
@@ -40,9 +58,10 @@ export class IssueTreeService {
     });
     // console.log('root',this.root)
     root.x0 = height / 2;
+
     root.y0 = 0;
 
-    root.children.forEach((d:any)=>{
+    root.children?.forEach((d:any)=>{
       this.collapse(d)
     })
 
@@ -52,7 +71,7 @@ export class IssueTreeService {
 
 
 
-public update(source:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any) {
+public update(source:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any) {
   var nodeEnter:any
   var node: Selection<any, any, any, any>;
   let licz=0
@@ -66,22 +85,22 @@ public update(source:any,svg: Selection<any, any, any, any>,treemap:any,root:any
 
     node=this.setNode(nodes,svg,params);
 
-    nodeEnter=this.nodeEnter(node,source,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+    nodeEnter=this.nodeEnter(node,source,svg,treemap,root,params)
 
     //------------------ draw rectangle ---------------------------------
-    this.drawRect(nodeEnter,rectWidth,rectHight)
+    this.drawRect(nodeEnter)
 
     //-------------------- text -------------------------------------------------------------
     this.drawText(nodeEnter)
 
     //------------------------ add Icons & Menu ------------------------
-    this.addIconsAndMenu(nodeEnter,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+    this.addIconsAndMenu(nodeEnter,svg,treemap,root,params)
 
     //------------------------ node update -----------------------
-    this.updateNode(nodeEnter,node,source,duration)
+    this.updateNode(nodeEnter,node,source)
 
     //----------------------------start link ---------------------------
-    this.drawLinks(svg,links,source,rectWidth,offsetYLink,duration)
+    this.drawLinks(svg,links,source)
 
     this.update0Coordinate(nodes)
 
@@ -91,7 +110,7 @@ public update(source:any,svg: Selection<any, any, any, any>,treemap:any,root:any
 
 private setNodesYCoordinate(nodes:any){
   nodes.forEach((d:any)=> {
-    d.y = d.depth * 180;
+    d.y = d.depth * (GlobalVariable.d3.rect.rectWidth+GlobalVariable.d3.rect.rectDistance);
   });
 }
 
@@ -104,7 +123,7 @@ private setNode(nodes:any,svg: Selection<any, any, any, any>,params:any):Selecti
 
 }
 
-private nodeEnter(node: Selection<any, any, any, any>,source:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any):any{
+private nodeEnter(node: Selection<any, any, any, any>,source:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any):any{
    let nodeEnter = node
   .enter()
   .append("g")
@@ -114,17 +133,17 @@ private nodeEnter(node: Selection<any, any, any, any>,source:any,svg: Selection<
     // return "translate(" + d.y + "," + d.x + ")";
   })
   .on("click", (d:any)=>{
-    this.click(d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+    this.click(d,svg,treemap,root,params)
 
   })
   .on('contextmenu', (d:any)=>{
-    this.contextMenu(d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+    this.contextMenu(d,svg,treemap,root,params)
   });;
 
   return nodeEnter
 }
 
-private drawRect(nodeEnter:any,rectWidth:number,rectHight:number){
+private drawRect(nodeEnter:any){
   //------------------ draw rectangle ---------------------------------
 // nodeEnter
 //   .attr("class", "node")
@@ -159,45 +178,65 @@ nodeEnter
 .attr("x", 0)
 .attr("y", -10)
 .attr("width", (d:any)=> {
-  return d.parent ? rectWidth : rectWidth;
+  return d.parent ? GlobalVariable.d3.rect.rectWidth : GlobalVariable.d3.rect.rectWidth;
 })
-.attr("height", rectHight);
+.attr("height",  GlobalVariable.d3.rect.rectHight)
+.attr('fill', GlobalVariable.d3.rect.fill)
 //------------------------ end rectangle -------------------------------------
 
 }
 
 private drawText(nodeEnter:any){
   //-------------------- text -------------------------------------------------------------
+// nodeEnter
+// .append("text")
+// .style("fill", (d:any)=> {
+// if (d.parent) {
+//   return d.children || d._children ? "#212121" : "#bbbbbb";
+// }
+// return "#777777";
+// })
+// .style('inline-size', '200px')
+// .attr("dy", ".35em")
+// .attr("x", (d:any)=> {
+// return d.children ? (d.data.value)*(1) : d.data.value+4
+// })
+// .attr("text-anchor", (d:any)=> {
+// return "start";
+// })
+// .text((d:any)=> {
+// return d.data.name;
+// });
+
 nodeEnter
-.append("text")
-.style("fill", (d:any)=> {
-if (d.parent) {
-  return d.children || d._children ? "#ffffff" : "rgb(38, 222, 176)";
-}
-return "rgb(39, 43, 77)";
-})
-.attr("dy", ".35em")
-.attr("x", (d:any)=> {
-return d.children ? (d.data.value)*(1) : d.data.value+4
-})
-.attr("text-anchor", (d:any)=> {
-return "middle";
-})
-.text((d:any)=> {
-return d.data.name;
-});
+  .append("foreignObject").attr("y", "-5px")
+  .attr("x", (d:any)=> {
+  return d.children ? (d.data.value)*(1) : d.data.value+4
+  })
+  .attr("width",GlobalVariable.d3.rect.rectWidth-20).attr("height",GlobalVariable.d3.rect.rectHight-10)
+  .append("xhtml:div")
+  .style("color", (d:any)=> {
+    if (d.parent) {
+      return d.children || d._children ? "#212121" : "#bbbbbb";
+    }
+    return "#777777";
+  })
+  .classed('foreignObjectText',true)
+      .html((d:any)=>`${d.data.name}`);
+
+
 //----------------- end text --------------------------------------------
 }
 
-private addIconsAndMenu(nodeEnter:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+private addIconsAndMenu(nodeEnter:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any){
   //------------------------ start a href ------------------------
 nodeEnter
 .append("a")
 .attr("xlink:href", "http://en.wikipedia.org/wiki/")
 .on("click", (event:any)=>{
-  // event.preventDefault();
-  // event.stopPropagation();
-  // console.log("d3.event",event)
+   event.preventDefault();
+   event.stopPropagation();
+   console.log("d3.event",event)
   // let newNodeObj:any={ name: "A6",level: "blue",  value: 6,children: []}
   // //Creates new Node
   // var newNode:any = hierarchy(newNodeObj);
@@ -213,7 +252,7 @@ nodeEnter
   // //   return d.children;
   // // });
   // this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
-    this.addNode(event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+    //this.addNode(event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
 
   }
 )
@@ -239,18 +278,37 @@ nodeEnter
  * @param params
  */
 
-private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any){
   event.preventDefault();
   event.stopPropagation();
   console.log("d3.event",event)
-  let newNodeObj:any={ name: "A6",level: "blue",  value: 6,children: []}
-  //Creates new Node
-  var newNode:any = hierarchy(newNodeObj);
-  newNode.depth = event.target.__data__.depth + 1;
-  newNode.height = event.target.__data__.height - 1;
-  newNode.parent = event.target.__data__;
-  newNode.id = ++params.licz;
-  this.addChildrenToNode(newNode,event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+  this.issueDialogFormComponentRef= this.dialog.open(IssueDialogFormComponent,{
+    width:"40%",
+    maxWidth:'95vw',
+    height:"30%",
+    disableClose:true,
+    autoFocus:true,
+    data: {
+      currentIssue: {name:'Wielkie dupsko i nic więcej. Lorem lopsem morelem dupa tylko skolko ty być',description:'description'},
+      isEdit : false,
+    }
+  });
+  this.issueDialogFormComponentRef.afterClosed().subscribe(result => {
+    console.log(`Dialog result: ${result}`,result);
+    if(typeof result!="undefined" && result!=null && result!=""){
+        console.log('close issueDialogFormComponentRef',result)
+        let newNodeObj:any={ name: result.name,description:result.description,level: "blue",  value: 6,children: []}
+        //Creates new Node
+        var newNode:any = hierarchy(newNodeObj);
+        newNode.depth = event.target.__data__.depth + 1;
+        newNode.height = event.target.__data__.height - 1;
+        newNode.parent = event.target.__data__;
+        newNode.id = ++params.licz;
+        this.addChildrenToNode(newNode,event,svg,treemap,root,params)
+        this.update(event.target.__data__,svg,treemap,root,params)
+    }
+  });
+
   // if(event.target.__data__.children || event.target.__data__._children){
   //   event.target.__data__.children.push(newNode)
   //   event.target.__data__.data.children.push(newNode)
@@ -266,8 +324,58 @@ private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:an
   // this.root = hierarchy(this.treeData, function(d:any) {
   //   return d.children;
   // });
-  this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+
 }
+
+
+editNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any,data:any){
+
+  this.issueDialogFormComponentRef= this.dialog.open(IssueDialogFormComponent,{
+    width:"40%",
+    maxWidth:'95vw',
+    height:"40%",
+    disableClose:true,
+    autoFocus:true,
+    data: {
+      currentIssue: {name:this.utilityService.getFieldFromObject(data,'name',''),description:this.utilityService.getFieldFromObject(data,'description','')},
+      isEdit : true,
+    }
+  });
+  this.issueDialogFormComponentRef.afterClosed().subscribe(result => {
+    console.log(`Dialog result: ${result}`,result);
+    if(typeof result!="undefined" && result!=null && result!=""){
+        console.log('close issueDialogFormComponentRef',result,event.target.name)
+        console.log('editNode',event,event.target);
+
+        if(event.target.localName=='div') {
+          event.target.parentElement.__data__.data.name=result.name
+          event.target.parentElement.__data__.data.description=result.description
+          event.target.innerText=result.name
+          event.target.textContent=result.name
+        }
+        else if(event.target.localName=='foreignObject'){
+          event.target.__data__.data.name=result.name
+          event.target.__data__.data.description=result.description
+          event.target.innerHTML=`<div class="foreignObjectText" style="color: rgb(187, 187, 187);">${result.name}</div>`
+        }
+
+
+        // event.target.__data__.data.name=result.name
+        // event.target.innerText=result.name
+        // event.target.textContent=result.name
+        this.update(event.target.__data__,svg,treemap,root,params)
+    }
+  });
+
+
+
+
+
+
+}
+
+
+
 
 
 /**
@@ -283,17 +391,17 @@ private addNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:an
  * @param duration
  * @param params
  */
-private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any){
   if(event.target.__data__.children) {
     event.target.__data__.children.push(newNode)
-    event.target.__data__.data.children.push(newNode)
+    event.target.__data__.data.children.push(newNode.data)
   }
   else
   if(event.target.__data__._children)
   {
     event.target.__data__._children.push(newNode)
-    event.target.__data__.data.children.push(newNode)
-    this.click(event,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params,'target')
+    event.target.__data__.data.children.push(newNode.data)
+    this.click(event,svg,treemap,root,params,'target')
   }
   else
   {
@@ -305,7 +413,7 @@ private addChildrenToNode(newNode:any,event:any,svg: Selection<any, any, any, an
 }
 
 
-private removeNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+private removeNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any){
   event.preventDefault();
   event.stopPropagation();
   console.log("d3.event",event)
@@ -338,23 +446,64 @@ private removeNode(event:any,svg: Selection<any, any, any, any>,treemap:any,root
   // this.root = hierarchy(this.treeData, function(d:any) {
   //   return d.children;
   // });
-  this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+  this.update(event.target.__data__,svg,treemap,root,params)
 }
 
-private updateNode(nodeEnter:any,node: Selection<any, any, any, any>,source:any,duration:number){
+
+private addSalution(event:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any){
+  event.preventDefault();
+  event.stopPropagation();
+  console.log("d3.event",event)
+  this.dialogEditorFormRef= this.dialog.open(EditorComponent,{
+    width:"98%",
+    maxWidth:'95vw',
+    height:"90%",
+    disableClose:true,
+    autoFocus:true,
+
+  });
+  this.dialogEditorFormRef.afterClosed().subscribe(result => {
+    console.log(`Dialog result: ${result}`,result);
+    if(typeof result!="undefined" && result!=null && result!=""){
+      // this.registerService.getregisterItems();
+      // this.dataSource._updateChangeSubscription();
+    }
+  });
+
+  // if (event.target.__data__.parent) {
+
+  //   // find child and remove it
+  //   for (var ii = 0; ii < event.target.__data__.parent.children.length; ii++) {
+  //     if (event.target.__data__.parent.children[ii].id === event.target.__data__.id) {
+  //       event.target.__data__.parent.children.splice(ii, 1);
+  //       if(event.target.__data__.parent.children.length===0)event.target.__data__.parent.children=null
+  //       break;
+  //     }
+  //   }
+  // }
+
+
+
+
+
+  // this.update(event.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params)
+}
+
+
+private updateNode(nodeEnter:any,node: Selection<any, any, any, any>,source:any){
   //------------------------ node update -----------------------
   var nodeUpdate = nodeEnter.merge(node);
 
   nodeUpdate
   .transition()
-  .duration(duration)
+  .duration(GlobalVariable.d3.rect.duration)
   .attr("transform", (d:any)=> {
     return "translate(" + d.y + "," + d.x + ")";
   });
   var nodeExit = node
   .exit()
   .transition()
-  .duration(duration)
+  .duration(GlobalVariable.d3.rect.duration)
   .attr("transform", (d:any)=> {
     return "translate(" + source.y + "," + source.x + ")";
   })
@@ -375,7 +524,7 @@ private updateNode(nodeEnter:any,node: Selection<any, any, any, any>,source:any,
  * @param offsetYLink
  * @param duration
  */
-private drawLinks(svg: Selection<any, any, any, any>,links:any,source:any,rectWidth:number,offsetYLink:number,duration:number){
+private drawLinks(svg: Selection<any, any, any, any>,links:any,source:any){
   //----------------------------start link ---------------------------
 let link:Selection<any, any, any, any> = svg.selectAll("path.link").data(links, function(d:any) {
   return d.id;
@@ -388,27 +537,27 @@ let link:Selection<any, any, any, any> = svg.selectAll("path.link").data(links, 
   .attr("d", (d:any)=> {
    // var o = { x: source.x0, y: source.y0 };
     // var o = { x: d.x+this.offsetYLink, y: d.y };
-    var o = { x: source.x0+offsetYLink, y: source.y0 };
+    var o = { x: source.x0+GlobalVariable.d3.rect.offsetYLink, y: source.y0 };
     // return this.diagonal(o, {x:d.parent.x+this.offsetYLink,y:d.parent.y+this.rectWidth});
-    return this.diagonal(o, {x:source.x0+offsetYLink,y:source.y0+rectWidth});
+    return this.diagonal(o, {x:source.x0+GlobalVariable.d3.rect.offsetYLink,y:source.y0+GlobalVariable.d3.rect.rectWidth});
 
   });
 
   var linkUpdate = linkEnter.merge(link);
   linkUpdate
     .transition()
-    .duration(duration)
+    .duration(GlobalVariable.d3.rect.duration)
     .attr("d", (d:any)=> {
-      var o = { x: d.x+offsetYLink, y: d.y };
-      return this.diagonal(o, {x:d.parent.x+offsetYLink,y:d.parent.y+rectWidth});
+      var o = { x: d.x+GlobalVariable.d3.rect.offsetYLink, y: d.y };
+      return this.diagonal(o, {x:d.parent.x+GlobalVariable.d3.rect.offsetYLink,y:d.parent.y+GlobalVariable.d3.rect.rectWidth});
     });
   var linkExit = link
     .exit()
     .transition()
-    .duration(duration)
+    .duration(GlobalVariable.d3.rect.duration)
     .attr("d", (d:any)=> {
     // var o = { x: source.x, y: source.y };
-      var o = { x: source.x+offsetYLink, y: source.y };
+      var o = { x: source.x+GlobalVariable.d3.rect.offsetYLink, y: source.y };
       return this.diagonal(o, o);
     })
     .remove();
@@ -443,7 +592,7 @@ private diagonal(s:any, p:any) {
  * @param params
  * @param string target default 'currentTarget'
  */
-private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any,target:string="currentTarget") {
+private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any,target:string="currentTarget") {
   console.log('click',d[target].__data__)
   if (d[target].__data__.children) {
     d[target].__data__._children = d[target].__data__.children;
@@ -452,26 +601,27 @@ private click(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rect
     d[target].__data__.children = d[target].__data__._children;
     d[target].__data__._children = null;
   }
-  this.update(d[target].__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params);
+  this.update(d[target].__data__,svg,treemap,root,params);
   // this.update(d.target.__data__,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params);
 }
 
 
 
-private contextMenu(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,rectWidth:number,rectHight:number,offsetYLink:number,duration:number,params:any){
+private contextMenu(d:any,svg: Selection<any, any, any, any>,treemap:any,root:any,params:any){
   console.log('contextMenu',d,d.currentTarget.__data__)
   let data=d.currentTarget.__data__
+  d.currentTarget.__data__.data["salution"]="dupa"
   // create the div element that will hold the context menu
-  svg.selectAll('.svg-popupmenu').remove()
-  let foreignObject=svg.append('foreignObject')
-  .attr('x',d.pageX - 20)
-  .attr('y',d.pageY - 120)
-  .attr('width',100)
-  .attr('overflow','visible')
-  .attr('class','svg-popupmenu')
-   var div = foreignObject.append('xhtml:div')
-   .attr('class','svg-popupmenuDiv')
-   .append('p').html('kuwa mac')
+  // svg.selectAll('.svg-popupmenu').remove()
+  // let foreignObject=svg.append('foreignObject')
+  // .attr('x',d.pageX - 20)
+  // .attr('y',d.pageY - 120)
+  // .attr('width',100)
+  // .attr('overflow','visible')
+  // .attr('class','svg-popupmenu')
+  //  var div = foreignObject.append('xhtml:div')
+  //  .attr('class','svg-popupmenuDiv')
+  //  .append('p').html('kuwa mac')
 
 
   select('body').selectAll('.d3-context-menu').data([1])
@@ -495,7 +645,7 @@ private contextMenu(d:any,svg: Selection<any, any, any, any>,treemap:any,root:an
     })
     .on('click', (i, item)=> {
       console.log('d',i.currentTarget.__data__,item,data)
-      let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=[d,svg,treemap,root,rectWidth,rectHight,offsetYLink,duration,params]
+      let parametry:[any,Selection<any, any, any, any>,any,any,any,any]=[d,svg,treemap,root,params,data.data]
       // item.action(elm, ...parametry);
       item.action(item, parametry);
       select('body').select('.d3-context-menu').style('display', 'none');
@@ -527,53 +677,57 @@ private collapse(d:any | null){
 
 
   setWidth(nativeElement:HTMLElement,margin:margin):number{
-    return nativeElement.offsetWidth - margin.left - margin.right;
+    // let width=nativeElement.offsetWidth==0?1200:nativeElement.offsetWidth
+   let width=nativeElement.offsetWidth
+
+    return width - margin.left - margin.right;
   }
 
   setHeight(nativeElement:HTMLElement,margin:margin,workHeight:number=900):number{
     return workHeight - margin.top - margin.bottom;
   }
 
-  getTreeData():any{
-    return {
-      name: "T",
-      level: "red",
-      value: 10,
-      children: [
-        {
-          name: "A",
-          level: "green",
-          value: 15,
-          children: [
-            { name: "A1",level: "blue", value: 5},
-            { name: "A2" ,level: "blue", value: 8},
-            { name: "A3",level: "blue",  value: 6,},
-            { name: "A4",level: "blue",  value: 6},
-            {
-              name: "A5",
-              level: "yellow",
-              value: 8,
-              children: [
-                { name: "A5_1" ,level: "blue", value: 7},
-                {
-                  name: "A5_2",
-                  level: "purple",
-                  value: 6,
-                  children: [{ name: "A5_2_1",value: 5,level: "black"  }, { name: "A5_2_2",level: "blue",value: 5  }]
-                }
-              ]
-            }
-          ]
-        },
-        { name: "B" ,level: "blue", value: 8},
-        {
-          name: "C",
-          level: "green",
-          value: 12,
-          children: [{ name: "C1",level: "blue",value: 7  }, { name: "C2" ,level: "blue",value: 7}, { name: "C3",level: "blue",value: 7  }]
-        }
-      ]
-    };
+  getTreeData(data:any):any{
+    return typeof data !="undefined" && typeof data.issue !="undefined"?data.issue:{name: "T",level: "red", value: 10, children: []};
+    // {
+    //   name: "T",
+    //   level: "red",
+    //   value: 10,
+    //   children: [
+    //     {
+    //       name: "A",
+    //       level: "green",
+    //       value: 15,
+    //       children: [
+    //         { name: "A1",level: "blue", value: 5},
+    //         { name: "A2" ,level: "blue", value: 8},
+    //         { name: "A3",level: "blue",  value: 6,},
+    //         { name: "A4",level: "blue",  value: 6},
+    //         {
+    //           name: "A5",
+    //           level: "yellow",
+    //           value: 8,
+    //           children: [
+    //             { name: "A5_1" ,level: "blue", value: 7},
+    //             {
+    //               name: "A5_2",
+    //               level: "purple",
+    //               value: 6,
+    //               children: [{ name: "A5_2_1",value: 5,level: "black"  }, { name: "A5_2_2",level: "blue",value: 5  }]
+    //             }
+    //           ]
+    //         }
+    //       ]
+    //     },
+    //     { name: "B" ,level: "blue", value: 8},
+    //     {
+    //       name: "C",
+    //       level: "green",
+    //       value: 12,
+    //       children: [{ name: "C1",level: "blue",value: 7  }, { name: "C2" ,level: "blue",value: 7}, { name: "C3",level: "blue",value: 7  }]
+    //     }
+    //   ]
+    // };
   }
 
 
@@ -582,20 +736,87 @@ private collapse(d:any | null){
       title: 'Dodaj węzeł',
       action: (d:any,data:any) => {
         // TODO: add any action you want to perform
-        let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=data
+        let parametry:[any,Selection<any, any, any, any>,any,any,any]=data
         // parametry[0]['currentTarget']=parametry[0]['target']
-        console.log('add node',d,data);
+        console.log('add node',d,'data',data);
         this.addNode(...parametry)
+      }
+    },
+    {
+      title: 'Edytuj węzeł',
+      action: (d:any,data:any) => {
+        // TODO: add any action you want to perform
+        let parametry:[any,Selection<any, any, any, any>,any,any,any,any]=data
+        // parametry[0]['currentTarget']=parametry[0]['target']
+        console.log('edit node',d,'data',data);
+        this.editNode(...parametry)
       }
     },
     {
       title: 'Usuń węzeł',
       action: (d:any,data:any) => {
         // TODO: add any action you want to perform
-        let parametry:[any,Selection<any, any, any, any>,any,any,number,number,number,number,any]=data
+        let parametry:[any,Selection<any, any, any, any>,any,any,any,]=data
         this.removeNode(...parametry)
         console.log('remove node',d,data);
       }
+    },
+    {
+      title: 'Rozwiązanie',
+      action: (d:any,data:any) => {
+        // TODO: add any action you want to perform
+        let parametry:[any,Selection<any, any, any, any>,any,any,any]=data
+        this.addSalution(...parametry)
+        console.log('add salution',d,data);
+      }
     }
   ];
+
+
+  saveIssue(issue:any):Observable<any> {
+    const url = `${this.globalUrl}/kwestia`;
+    const issueData = { issue: issue };
+    return this.http.post(url, issueData,httpOptionsText);
+  }
+
+  updateIssue(id:string,issue:any):Observable<IssueTree>{
+    console.log('updateIssue',issue)
+    const issueData = { issue: issue };
+    return this.http.put<IssueTree>(`${this.globalUrl}/kwestia/${id}`,issueData,httpOptionsText);
+  }
+
+  saveIssueMetaData(issue:any):Observable<any> {
+    const url = `${this.globalUrl}/kwestia`;
+    const issueData = {name:issue.value,description:issue.description};
+    return this.http.post(url, issueData,httpOptionsText);
+  }
+
+  updateIssueMetaData(id:string,issue:any):Observable<IssueTree>{
+    console.log('updateIssue',issue)
+    const issueData = {name:issue.name,description:issue.description};
+    return this.http.put<IssueTree>(`${this.globalUrl}/kwestia/${id}`,issueData,httpOptionsText);
+  }
+
+
+  setIssueTree$(item:any){
+    this.issueTree$.next(item);
+  }
+
+  getIssueTree$() {
+    return this.issueTree$.asObservable();
+  }
+
+  getIssueTreeValue() {
+    return this.issueTree$.value;
+  }
+
+
+  getIssueTreeById(id:string):Observable<any>{
+    const url = `${this.globalUrl}/kwestia/${id}`;
+    return this.http.get<IssueTree>(url)
+
+  }
+
+
+
 }

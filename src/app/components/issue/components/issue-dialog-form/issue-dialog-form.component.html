@@ -1,0 +1,27 @@
+<div style="height: 100%;">
+  <div class="container">
+  <h3>Opis problemu<span>&nbsp;</span></h3>
+  <hr>
+  <form [formGroup]="issueForm" (ngSubmit)="onSubmit(issueForm)">
+    <div class="form--content">
+      <mat-form-field class="width20Procent" style="background-color: #fff;">
+        <mat-label>Nazwa</mat-label>
+        <input matInput placeholder="Nazwa"  formControlName="name">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Opis</mat-label>
+        <!-- <input matInput placeholder="Opis"  formControlName="description"> -->
+        <textarea matInput  cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1"  cdkAutosizeMaxRows="5" formControlName="description"></textarea>
+
+      </mat-form-field>
+    </div>
+
+
+
+    <mat-dialog-actions class="dialog--footer" >
+      <button mat-stroked-button mat-dialog-close style="align-self: flex-start;">Zamknij</button>
+      <button mat-stroked-button type="submit" [color]="'greenish'"  [disabled]="issueForm.invalid" style="margin-left: auto;align-self: flex-start;">Zapisz</button>
+    </mat-dialog-actions>
+  </form>
+  </div>
+</div>

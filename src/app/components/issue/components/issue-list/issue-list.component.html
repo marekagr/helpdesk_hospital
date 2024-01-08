@@ -1,0 +1,7 @@
+<table>
+  <tr><th>Id</th></tr>
+  <tr *ngFor="let item of issueList">
+    <td> <a (click)="getIssue(item._id)"  style="color:red;cursor: pointer">{{item.name?item.name:item._id}}</a>    </td>
+  </tr>
+</table>
+<!-- {{issueList|json}} -->

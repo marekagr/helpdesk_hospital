@@ -1,0 +1,9 @@
+<p>editor works!</p>
+<form [formGroup]="frm">
+  <angular-editor formControlName="htmlContent" [config]="editorConfig"></angular-editor>
+  </form>
+
+  <mat-dialog-actions style="display: flex; flex-flow: row;margin-top: 1em;border-top:1px solid black">
+    <button class="mat-raised-button" mat-dialog-close style="align-self: flex-start;">Zamknij</button>
+    <button mat-stroked-button type="submit" [color]="'greenish'"  [disabled]="frm.invalid" style="margin-left: auto;align-self: flex-start;">Zapisz</button>
+  </mat-dialog-actions>

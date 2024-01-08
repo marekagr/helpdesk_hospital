@@ -1,0 +1,72 @@
+:host{
+  display: flex;
+  flex-direction: column;;
+  height: 100%;
+  width: 100%;
+  .container{
+    --text-color: #080;
+    margin:10px;
+    height:100%;
+    h3{
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 15px;
+      text-transform: uppercase;
+      color: rgb(157, 170, 189);
+      font-weight: 500;
+      span{
+        background-image: url(/assets/customer-problem-svgrepo-com1.svg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 28px;
+    left: -60px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(0, 157, 222, 0.2196078431);
+    background-size: 64px;
+    background-repeat: no-repeat;
+    background-position: center;
+    overflow: visible;
+      }
+    }
+    hr{
+      width: 100%;
+      border-top: 1px solid #a4d5ed;
+      border-width: thin;
+      margin: 0 0 15px;
+    }
+    form{
+      display: flex;
+      min-height: 80%;
+      flex-direction: column;
+      height: 80%;
+      align-items: stretch;
+      .form--content{
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .dialog--footer{
+        display: flex; flex-flow: row;margin-top: auto;color:#0f9add
+      }
+    }
+    // .mdc-text-field--filled,.mdc-text-field--filled,input,.mat-mdc-form-field-focus-overlay{
+    //   background-color: #fff;
+    // }
+    .mdc-text-field--filled:not(.mdc-text-field--disabled){
+      background-color: rgba(255,255,255,1);
+    }
+
+  }
+}
+
+.mdc-text-field--filled:not(.mdc-text-field--disabled){
+  background-color: rgba(255,255,255,1);
+}
+
+.mdc-dialog__surface{
+  overflow-y: visible;
+}

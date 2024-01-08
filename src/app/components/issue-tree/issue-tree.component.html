@@ -1,10 +1,37 @@
-<h3>issue components</h3>
+<mat-sidenav-container class="example-container">
+  <mat-sidenav #sidenav mode="side" [(opened)]="opened" (opened)="events.push('open!')" (closed)="events.push('close!')" position="end">
+      <div class="container">
+        <h3>Opis problemu<span>&nbsp;</span></h3>
+        <hr>
+        <form [formGroup]="issueForm" (ngSubmit)="onSubmit(issueForm)">
+          <div class="form--content">
+            <mat-form-field class="width20Procent" style="background-color: #fff;">
+              <mat-label>Nazwa</mat-label>
+              <input matInput placeholder="Nazwa"  formControlName="name">
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Opis</mat-label>
+              <!-- <input matInput placeholder="Opis"  formControlName="description"> -->
+              <textarea matInput  cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1"  cdkAutosizeMaxRows="5" formControlName="description"></textarea>
+            </mat-form-field>
+            <div class="sidenav--footer">
+              <button mat-stroked-button (click)="sidenav.toggle()">Zamknij</button>
+              <button mat-stroked-button type="submit" [color]="'greenish'"  [disabled]="issueForm.invalid" class='button--save'style="margin-left: auto;align-self: flex-start;">Zapisz</button>
+            </div>
+          </div>
+        </form>
+      </div>
+  </mat-sidenav>
+<mat-sidenav-content>
 <div class="card">
 	<div class="card-header">
-		Example:Tree issue
-    <button (click)="onSave()">Save</button>
+    <button mat-stroked-button  color="warn" (click)="onSave()">Zapisz</button>
+    &nbsp;
+   <button mat-stroked-button (click)="sidenav.toggle()">Metadane</button>
 	</div>
 	<div class="card-body">
 		<figure #chartArea></figure>
 	</div>
 </div>
+</mat-sidenav-content>
+</mat-sidenav-container>

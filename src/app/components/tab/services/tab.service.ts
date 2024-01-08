@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Tab } from "../models/tab.model";
 // import { Comp1Component } from "./components/comp1/comp1.component";
 import { IssueTreeComponent } from "../../issue-tree/issue-tree.component";
+import {StartComponent} from "../../start/components/start/start.component"
 import { BehaviorSubject } from "rxjs";
 
 @Injectable({
@@ -9,7 +10,11 @@ import { BehaviorSubject } from "rxjs";
 })
 export class TabService {
   public tabs: Tab[] = [
-    new Tab(IssueTreeComponent, "Comp1 View", { parent: "AppComponent" }),
+
+    new Tab(StartComponent, "Start", { parent: "TabComponent" }),
+    // new Tab(IssueTreeComponent, "Comp1 View", { parent: "TabComponent" }),
+
+
     // new Tab(Comp2Component, "Comp2 View", { parent: "AppComponent" })
   ];
 

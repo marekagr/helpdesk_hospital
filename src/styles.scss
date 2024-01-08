@@ -1,7 +1,11 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+:root{
+  --mdc-filled-text-field-container-color:#fff;
+}
 html, body {
   margin: 0;
   padding: 0;
-  background-color: rgb(39, 43, 77);
+  background-color: rgba(255, 255, 255,1);
   }
   .node {
   cursor: pointer;
@@ -11,8 +15,13 @@ html, body {
   }
 
   .node text {
-  font: 10px sans-serif;
+  font: 12px sans-serif;
   }
+
+  .foreignObjectText{
+    font: 12px sans-serif;
+  }
+
 
   .link {
   fill: none;
@@ -54,3 +63,44 @@ html, body {
   background-color: #ffffff;
 }
 
+
+
+.mdc-text-field--filled:not(.mdc-text-field--disabled){
+  background-color: rgba(255,255,255,1);
+}
+.container{
+
+  .mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: var( --mdc-filled-text-field-container-color,rgba(255,255,255,1));
+    padding: 0px;
+  }
+  .mat-mdc-form-field-focus-overlay {
+    background-color: rgba(255,255,255,1);
+}
+
+}
+.mat-form-field-appearance-fill .mat-form-field-flex {
+  background-color: rgba(255,255,255,1);
+  padding: 0px;
+}
+
+.mdc-dialog__surface{
+  overflow-y: visible !important;
+}
+
+
+
+.mat-mdc-tab-header{
+  border-bottom: thin rgba(0, 157, 222,0.3) solid;
+}
+.tooltip-class{
+  background-color: #afafaf;
+  color:rgba(0, 157, 222,1);
+  border:thin rgba(0, 157, 222,0.3) solid;
+  border-radius: 5px;
+}
+
+.mat-mdc-tooltip {
+  --mdc-plain-tooltip-container-color: #fff;
+  --mdc-plain-tooltip-supporting-text-color: #000;
+}

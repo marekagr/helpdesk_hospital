@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
-// import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
+
 
 import {MatButtonModule} from '@angular/material/button';
 import {MatSidenavModule} from '@angular/material/sidenav';
@@ -28,11 +29,12 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatTreeModule} from '@angular/material/tree';
 import { TabComponent } from '../components/tab/components/tab/tab.component'
 import { TabContentComponent } from '../components/tab-content/components/tab-content/tab-content.component';
+import { ContentContainerDirective } from '../components/tab-content/directives/content-container.directive';
 @NgModule({
-  declarations: [TabComponent,TabContentComponent],
+  declarations: [TabComponent,TabContentComponent,ContentContainerDirective],
   imports: [
     MatButtonModule,
-    // CommonModule,
+    CommonModule,
     MatSidenavModule,
     MatDividerModule,
     MatToolbarModule,
@@ -61,7 +63,7 @@ import { TabContentComponent } from '../components/tab-content/components/tab-co
   ],
   exports: [
     MatButtonModule,
-    // CommonModule,
+    CommonModule,
     MatSidenavModule,
     MatDividerModule,
     MatToolbarModule,
@@ -85,8 +87,8 @@ import { TabContentComponent } from '../components/tab-content/components/tab-co
     MatProgressSpinnerModule,
     MatAutocompleteModule,
     MatRadioModule,
-    MatTreeModule
-
+    MatTreeModule,
+    TabComponent
   ]
 })
 export class MaterialModule { }
