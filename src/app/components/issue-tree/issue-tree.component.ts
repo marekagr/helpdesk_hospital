@@ -39,7 +39,7 @@ export class IssueTreeComponent implements OnInit {
   dialogEditorFormRef: MatDialogRef<EditorComponent> | undefined
 
 
-  constructor(public issueTreeService: IssueTreeService,private ref: ChangeDetectorRef,private dialog: MatDialog,private formBuilder: FormBuilder) {
+  constructor(public issueService: IssueService,public issueTreeService: IssueTreeService,private ref: ChangeDetectorRef,private dialog: MatDialog,private formBuilder: FormBuilder) {
     console.log('data from tab',this.data)
     this.issueForm= this.formBuilder.group({
 
@@ -115,7 +115,10 @@ export class IssueTreeComponent implements OnInit {
     if(typeof this.data._id!='undefined' && typeof this.data._id=='string')
       this.issueTreeService.updateIssue(this.data._id,dane.data).subscribe(data=>console.log(data))
     else
-      this.issueTreeService.saveIssue(dane.data).subscribe(data=>console.log(data))
+      this.issueTreeService.saveIssue(dane.data).subscribe(data=>{
+        console.log(data)
+        this.data._id=data._id
+      })
 
   }
 
@@ -143,9 +146,13 @@ export class IssueTreeComponent implements OnInit {
 
   onSubmit({ value, valid }: { value: any, valid: boolean }) {
     if(typeof this.data._id!='undefined' && typeof this.data._id=='string')
-      this.issueTreeService.updateIssueMetaData(this.data._id,value).subscribe((data:any)=>console.log(data))
-    else
-       this.issueTreeService.saveIssueMetaData(value).subscribe((data:any)=>console.log(data))
+      this.issueService.updateIssueMetaData(this.data._id,value).subscribe((data:any)=>console.log(data))
+    else{
+       this.issueService.saveIssueMetaData(value).subscribe((data:any)=>{
+        console.log(data)
+        this.data._id=data._id
+      })
+    }
   }
 
 

@@ -4,6 +4,7 @@ import { Subject,BehaviorSubject,Observable } from "rxjs";
 
 import { GlobalVariable } from '../../../../global';
 import {IssueTree} from "../../../components/issue-tree/models/issueTree"
+import {Issue} from "../models/Issue"
 const httpOptionsText={headers:new HttpHeaders({'Content-Type':  'text/plain'})};
 const httpOptionsform = {headers: new HttpHeaders({   'Content-Type': 'application/x-www-form-urlencoded'})}
 
@@ -75,5 +76,18 @@ export class IssueService {
   getcurrentIssueValue() {
     return this.currentIssue$.getValue()
   }
+
+  saveIssueMetaData(issue:any):Observable<any> {
+    const url = `${this.globalUrl}/kwestia`;
+    const issueData = {name:issue.name,description:issue.description};
+    return this.http.post(url, issueData,httpOptionsText);
+  }
+
+  updateIssueMetaData(id:string,issue:any):Observable<Issue>{
+    console.log('updateIssue',issue)
+    const issueData = {name:issue.name,description:issue.description};
+    return this.http.put<IssueTree>(`${this.globalUrl}/kwestia/${id}`,issueData,httpOptionsText);
+  }
+
 }
 

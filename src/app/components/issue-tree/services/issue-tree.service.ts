@@ -785,19 +785,6 @@ private collapse(d:any | null){
     return this.http.put<IssueTree>(`${this.globalUrl}/kwestia/${id}`,issueData,httpOptionsText);
   }
 
-  saveIssueMetaData(issue:any):Observable<any> {
-    const url = `${this.globalUrl}/kwestia`;
-    const issueData = {name:issue.value,description:issue.description};
-    return this.http.post(url, issueData,httpOptionsText);
-  }
-
-  updateIssueMetaData(id:string,issue:any):Observable<IssueTree>{
-    console.log('updateIssue',issue)
-    const issueData = {name:issue.name,description:issue.description};
-    return this.http.put<IssueTree>(`${this.globalUrl}/kwestia/${id}`,issueData,httpOptionsText);
-  }
-
-
   setIssueTree$(item:any){
     this.issueTree$.next(item);
   }
