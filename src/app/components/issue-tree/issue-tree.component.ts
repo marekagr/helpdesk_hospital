@@ -6,6 +6,7 @@ import {FormArray, FormControl,FormGroup,Validators,FormBuilder, Form,Validation
 import {Selection, select, scaleTime, scaleLinear, max, extent, treemap, tree, hierarchy, TreemapLayout} from "d3";
 import {IssueTreeService} from './services/issue-tree.service'
 import {IssueService} from '../issue/services/issue.service'
+import {TabService} from '../tab/services/tab.service'
 import {EditorComponent} from './../editor/components/editor/editor.component'
 
 @Component({
@@ -39,7 +40,7 @@ export class IssueTreeComponent implements OnInit {
   dialogEditorFormRef: MatDialogRef<EditorComponent> | undefined
 
 
-  constructor(public issueService: IssueService,public issueTreeService: IssueTreeService,private ref: ChangeDetectorRef,private dialog: MatDialog,private formBuilder: FormBuilder) {
+  constructor(public tabService:TabService,public issueService: IssueService,public issueTreeService: IssueTreeService,private ref: ChangeDetectorRef,private dialog: MatDialog,private formBuilder: FormBuilder) {
     console.log('data from tab',this.data)
     this.issueForm= this.formBuilder.group({
 
@@ -68,16 +69,16 @@ export class IssueTreeComponent implements OnInit {
   ngAfterViewInit(): void {
 
     setTimeout(()=>{                           // <<<---using ()=> syntax
-      if(typeof this.data !="undefined" && typeof this.data.issue !="undefined")this.issueForm.patchValue(this.data)
+      if(typeof this.data !="undefined")this.issueForm.patchValue(this.data)
+      if(typeof this.data._id == "undefined")this.opened=true
       this.treeData=this.issueTreeService.getTreeData(this.data);
       this.width=this.issueTreeService.setWidth(this.chartArea.nativeElement,this.margin)
-      this.height=this.issueTreeService.setHeight(this.chartArea.nativeElement,this.margin,1500)
+      this.height=this.issueTreeService.setHeight(this.chartArea.nativeElement,this.margin,1200)
       this.svg=this.issueTreeService.setSvgArea(this.chartArea.nativeElement,this.margin,this.width,this.height)
       this.treemap=tree().size([this.height,this.width]);
       this.root=this.issueTreeService.setSVGRoot(this.treemap,this.treeData,this.width,this.height)
 
       this.issueTreeService.update(this.root,this.svg,this.treemap,this.root,this.params)
-      this.data.name+="dd"
       console.log('data from tab',this.data)
   }, 500);
 
@@ -146,18 +147,29 @@ export class IssueTreeComponent implements OnInit {
 
   onSubmit({ value, valid }: { value: any, valid: boolean }) {
     if(typeof this.data._id!='undefined' && typeof this.data._id=='string')
-      this.issueService.updateIssueMetaData(this.data._id,value).subscribe((data:any)=>console.log(data))
+      this.issueService.updateIssueMetaData(this.data._id,value).subscribe((data:any)=>{
+        console.log(data)
+        this.issueService.setcurrentIssue$(data)
+      })
     else{
        this.issueService.saveIssueMetaData(value).subscribe((data:any)=>{
+        this.issueService.addIssueToList(data)
         console.log(data)
         this.data._id=data._id
       })
     }
+    console.log('get Active Tab',this.tabService.getActiveTab())
+    this.tabService.updateActiveTab({name:value.name})
   }
 
 
 
+  svgSize(){
+    console.log('svgSize',this.chartArea.nativeElement)
+    this.height=this.issueTreeService.setHeight(this.chartArea.nativeElement,this.margin,this.height+100)
+    this.svg=this.issueTreeService.setSvgArea(this.chartArea.nativeElement,this.margin,this.width,this.height)
 
+  }
 
 
 

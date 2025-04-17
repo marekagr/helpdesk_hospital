@@ -36,7 +36,7 @@ router.post("", (req, res) => {
 router.put("/:id", (req, res, next) => {
   const issue=JSON.parse(req.body);
   console.log('put issue',issue);
-  Issue.findByIdAndUpdate({ _id: req.params.id },issue).then(data=>{
+  Issue.findByIdAndUpdate({ _id: req.params.id },issue,{new:true}).then(data=>{
      console.log('put',data);
     res.status(200).json(data)
   })

@@ -21,7 +21,7 @@ export class TabHeaderComponent implements HeaderInterface{
 
   addNewTreeTab() {
     this.tabService.addTab(
-    new Tab(IssueTreeComponent, "Comp1 View", { parent: "TabComponent" })
+    new Tab(IssueTreeComponent, "Nowy problem", { parent: "TabComponent" })
     );}
   addNewEditorTab() {
       this.tabService.addTab(

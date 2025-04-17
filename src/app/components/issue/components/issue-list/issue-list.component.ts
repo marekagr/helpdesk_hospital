@@ -17,6 +17,7 @@ import { Tab } from "../../../tab/models/tab.model";
 export class IssueListComponent {
   public issueList:Issue[]=[];
 
+
   constructor(public issueService:IssueService,private tabService: TabService,private utilityService: UtilityService) {}
 
 
@@ -27,10 +28,19 @@ export class IssueListComponent {
       this.issueList=this.issueService.getIssueListValue()
       console.log('registerItems',this.issueList);
     })
+
+    this.issueService.getcurrentIssue$().subscribe((item:Issue|null)=>{
+      let indexIssue:number=-1;
+      if(item!=null && typeof item._id != undefined){
+        indexIssue=this.issueList.findIndex((kwestia:Issue)=>kwestia._id==item._id)
+        this.issueList[indexIssue]=item
+      }
+    })
   }
 
   getIssue(id:string){
     this.issueService.getIssueById(id).subscribe(issue=>{
+      this.issueService.setcurrentIssue$(issue);
       this.tabService.addTab(
         new Tab(IssueTreeComponent, this.utilityService.getFieldFromObject(issue,'name','Mój problem'), { parent: "TabComponent",...this.prepareIssue(issue)}))
       console.log('getIsuue',issue)

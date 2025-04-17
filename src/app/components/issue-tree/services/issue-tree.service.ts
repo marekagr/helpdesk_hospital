@@ -162,7 +162,7 @@ nodeEnter
   return 10;
 })
 .attr("stroke-width", (d:any)=> {
-  return d.parent ? 1 : 0;
+  return d.parent ? 1 : 1;
 })
 .attr("stroke", (d:any)=> {
   return d.children || d._children
@@ -688,7 +688,7 @@ private collapse(d:any | null){
   }
 
   getTreeData(data:any):any{
-    return typeof data !="undefined" && typeof data.issue !="undefined"?data.issue:{name: "T",level: "red", value: 10, children: []};
+    return typeof data !="undefined" && typeof data.issue !="undefined"?data.issue:{name: "Mój problem",level: "red", value: 10,root:true, children: []};
     // {
     //   name: "T",
     //   level: "red",

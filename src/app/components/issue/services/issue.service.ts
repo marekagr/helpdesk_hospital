@@ -49,6 +49,13 @@ export class IssueService {
       return this.issueList$.getValue()
     }
 
+
+    addIssueToList(data:Issue){
+      let issueList=this.getIssueListValue()
+      issueList.push(data)
+      this.setIssueList$(issueList);
+    }
+
     getIssue(id:string) {
       // this.http.get<Deal>(`${this.globalUrl}/pojazd/${id}`)
       //   .subscribe((data) => {

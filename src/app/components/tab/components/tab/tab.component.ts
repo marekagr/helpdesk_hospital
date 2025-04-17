@@ -22,7 +22,7 @@ export class TabComponent implements OnInit {
 
   constructor(private tabService: TabService,private headerService: HeaderService,private dialog: MatDialog) {}
   ngOnInit() {
-    this.tabService.tabSub.subscribe(tabs => {
+    this.tabService.getTabList$().subscribe(tabs => {
     this.tabs = tabs;
     this.selectedTab = tabs.findIndex(tab => tab.active);
     const cmp=new HeaderItem(TabHeaderComponent,{pp:'sss'})

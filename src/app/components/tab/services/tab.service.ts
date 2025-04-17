@@ -18,14 +18,14 @@ export class TabService {
     // new Tab(Comp2Component, "Comp2 View", { parent: "AppComponent" })
   ];
 
-  public tabSub = new BehaviorSubject<Tab[]>(this.tabs);
+  private tabList$ = new BehaviorSubject<Tab[]>(this.tabs);
 
   public removeTab(index: number) {
     this.tabs.splice(index, 1);
     if (this.tabs.length > 0) {
       this.tabs[this.tabs.length - 1].active = true;
     }
-    this.tabSub.next(this.tabs);
+    this.tabList$.next(this.tabs);
   }
 
   public addTab(tab: Tab) {
@@ -37,7 +37,26 @@ export class TabService {
     tab.id = this.tabs.length + 1;
     tab.active = true;
     this.tabs.push(tab);
-    this.tabSub.next(this.tabs);
+    this.tabList$.next(this.tabs);
+  }
+
+  public getTabList$() {
+    return this.tabList$.asObservable();
+  }
+
+  public getTabsValue(){
+    return this.tabList$.getValue()
+  }
+
+  public getActiveTab():Tab|null{
+    let indexActive:number;
+    indexActive=this.getTabsValue().findIndex(x=>x.active)
+    return indexActive>-1?this.tabs[indexActive]:null
+  }
+
+  public updateActiveTab(data:any){
+    let activeTab=this.getActiveTab()
+    if(activeTab!=null)activeTab.title=data.name;
   }
 }
 
